@@ -20,6 +20,7 @@ public class Sudoku {
         matriz = inicializaMatriz(matriz); // inicializa matriz 
         boolean [][] fixo = new boolean[9][9]; //posicoes fixas nao alteraveis
         int option = 0; //variavel que receberá escolha do jogador
+        boolean [][] temErro = new boolean[9][9];
         
         System.out.println("******************************");
         System.out.println("*     BEM VINDO AO SUDOKU    *");
@@ -38,13 +39,14 @@ public class Sudoku {
         }while(validar);
         validar = true; //inicializando para usar novamente
         fixo = ehPreenchido(fixo, matriz); //inicializa todas posicoes da matriz como válidas
+        temErro = ehPreenchido(temErro, matriz);
         
         //Inicializa a matriz de acordo com o escolhido
         if(option == 1){
             do{
-                System.out.println("Quantos numeros deseja sortear ? (ate 24)");
+                System.out.println("Quantos numeros deseja sortear ? (ate 40)");
                 sorteio = teclado.nextInt();
-                if(sorteio < 0 || sorteio > 24){
+                if(sorteio < 0 || sorteio > 40){
                     System.out.println("Valor inválido");
                 }else{
                     validar = false;
@@ -99,8 +101,10 @@ public class Sudoku {
                 }else{
                     if(ehPossivelInserir(matriz, linha, coluna, numero)){
                         matriz[linha][coluna] = numero;
+                        fixo[linha][coluna] = true;
                     }else{
-                        System.out.println("Já existe o numero " + 8 + " nessa coluna ou linha");
+                        matriz[linha][coluna] = numero;
+                        temErro[linha][coluna] = true;
                     }
                     
                 }
@@ -151,7 +155,8 @@ public class Sudoku {
                             if(ehPossivelInserir(matriz, linha, coluna, numero)){
                                 matriz[linha][coluna] = numero;
                             }else{
-                                System.out.println("Movimento Inválido! ");
+                                matriz[linha][coluna] = numero;
+                                temErro[linha][coluna] = true;
                             }
                         }
                         flag = false;
@@ -175,9 +180,10 @@ public class Sudoku {
                         }while(validar);
                         validar = true; //atualizando para usar novamente
                         if(fixo[linha][coluna]){
-                            System.out.println("Essas posições foram fixadas no inicio do jogo, você não pode alterá-las! ");
+                            System.out.println("Essa posição foi fixada no inicio do jogo, você não pode alterá-la! ");
                         }else{
                             matriz[linha][coluna] = 0;
+                            temErro[linha][coluna] = false;
                         }  
                         flag = false;
                         break;
@@ -189,7 +195,11 @@ public class Sudoku {
                             flag=false;
                             validar = false;
                         }else{
-                            System.out.println("O Jogo ainda não está completo :( ");
+                            if(tabuleiroErrado(temErro)){
+                                System.out.println("Temos valores incorretos no tabuleiro :( ");
+                            }else{
+                                System.out.println("O Jogo ainda não está completo mas os valores presentes são válidos :( ");
+                            }  
                         }
                         break;
                     case 4: //Sair
@@ -202,6 +212,17 @@ public class Sudoku {
                 }
             }while(flag); 
         }while(validar);        
+    }
+    
+    public static boolean tabuleiroErrado(boolean[][] temErros){
+        for(int i=0; i<temErros.length; i++){
+            for(int j=0; j<temErros[0].length; j++){
+                if(temErros[i][j] == true){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
     
     //define posicoes válidas para inserção de valores
